@@ -1,0 +1,25 @@
+[Unit]
+Description=SDLPAAutoLearn daemon (执业药师继续教育自动刷课)
+Documentation=file://%h/sdlpa/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# %h 会自动展开成执行 systemctl --user 的那个用户的家目录
+WorkingDirectory=%h/sdlpa
+ExecStart=/usr/bin/env node %h/sdlpa/daemon.js
+Restart=always
+RestartSec=30
+# daemon.js 自己会 spawn runner / chrome / watch / mirror / status / tunnel，
+# 这些子进程都要跟着退出，否则下次启动会和残留进程抢播放器
+KillMode=control-group
+KillSignal=SIGTERM
+TimeoutStopSec=20
+StandardOutput=append:%h/sdlpa/data/systemd.log
+StandardError=append:%h/sdlpa/data/systemd.log
+# 防止 OOM killer 在内存紧张时先干掉它
+OOMScoreAdjust=-200
+
+[Install]
+WantedBy=default.target

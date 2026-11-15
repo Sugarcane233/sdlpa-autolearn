@@ -1,0 +1,18 @@
+# ---- 依赖 ----
+node_modules/
+
+# ---- 运行期数据，全部不进仓库 ----
+# data/profile 是 Chrome 用户目录（约 1.4G），里面存着登录 cookie
+# data/*.json 是课程缓存和进度，部署时会自动重新拉取
+data/*
+!data/.gitkeep
+
+# ---- 本地密钥 ----
+ngrok-token.txt
+ngrok-domain.txt
+sdpa-env.sh
+.env
+
+# ---- 系统 ----
+.DS_Store
+*.swp

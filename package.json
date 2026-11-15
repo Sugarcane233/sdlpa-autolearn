@@ -1,0 +1,24 @@
+{
+  "name": "sdlpa-autolearn",
+  "version": "2.0.0",
+  "description": "山东大学执业药师继续教育 自动学时推进（无窗口 Chrome + CDP 控制）",
+  "main": "daemon.js",
+  "scripts": {
+    "start": "node daemon.js",
+    "status": "node run-status.js",
+    "relogin": "node relogin.js",
+    "once": "node runner.js --once",
+    "dry": "node runner.js --dry"
+  },
+  "keywords": ["sdlpa", "continuing-education"],
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "commonjs",
+  "dependencies": {
+    "@ngrok/ngrok": "^1.7.0",
+    "playwright-core": "^1.65.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

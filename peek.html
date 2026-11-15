@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>继续教育 · 后台看板</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#151b23; --line:#262d38;
+    --txt:#c9d1d9; --dim:#7d8590; --dim2:#545d68;
+    --blue:#58a6ff; --green:#3fb950; --yellow:#d29922; --red:#f85149;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+       font:14px/1.55 system-ui,-apple-system,"Microsoft YaHei",sans-serif;
+       -webkit-font-smoothing:antialiased}
+  a{color:var(--blue)}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 20px 40px}
+  top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-bottom:14px;
+      border-bottom:1px solid var(--line);margin-bottom:18px}
+  .brand{font-size:16px;font-weight:600;color:#fff;letter-spacing:.3px}
+  .brand small{color:var(--dim2);font-weight:400;margin-left:8px;font-size:12px}
+  .spacer{flex:1}
+  .stamp{color:var(--dim);font-size:12px;font-variant-numeric:tabular-nums}
+  .pills{display:flex;gap:7px;flex-wrap:wrap}
+  .pill{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;
+        background:var(--panel);border:1px solid var(--line);font-size:12px;color:var(--dim)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--dim2);flex:none}
+  .dot.on{background:var(--green);box-shadow:0 0 7px #3fb95099}
+  .dot.off{background:var(--red);box-shadow:0 0 7px #f8514999}
+  .pill b{color:var(--txt);font-weight:500}
+  .pill i{font-style:normal;color:var(--dim2);font-variant-numeric:tabular-nums}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1.15fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:900px){.g2,.g3{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+  .card h2{margin:0 0 12px;font-size:12px;font-weight:600;color:var(--dim);
+           letter-spacing:1.2px;text-transform:uppercase}
+  .big{display:flex;align-items:baseline;gap:8px;margin-bottom:2px}
+  .big b{font-size:40px;line-height:1;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+  .big span{font-size:15px;color:var(--dim)}
+  .big em{font-style:normal;font-size:13px;color:var(--dim2);margin-left:auto}
+  .bar{height:9px;border-radius:5px;background:#0a0e14;overflow:hidden;margin:12px 0 6px;
+       border:1px solid #1c222b}
+  .bar>div{height:100%;background:linear-gradient(90deg,#2f81f7,#58a6ff 55%,#79c0ff);
+           transition:width .6s ease;border-radius:5px}
+  .bar.thin{height:6px;margin:6px 0 0}
+  .bar.thin>div{background:linear-gradient(90deg,#238636,#3fb950)}
+  .sub{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--dim);margin-top:10px}
+  .sub b{color:var(--txt);font-variant-numeric:tabular-nums}
+  .cw{font-size:15px;color:#fff;margin-bottom:2px;line-height:1.4}
+  .cwmeta{color:var(--dim);font-size:12px;margin-bottom:10px}
+  .pos{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);
+       font-variant-numeric:tabular-nums;margin-bottom:4px}
+  .badge{display:inline-block;padding:1px 8px;border-radius:20px;font-size:11px;
+         border:1px solid;vertical-align:1px}
+  .badge.play{color:var(--green);border-color:#238636;background:#12261a}
+  .badge.pause{color:var(--yellow);border-color:#9e6a03;background:#2b2110}
+  .badge.dead{color:var(--red);border-color:#8b2b26;background:#2a1413}
+  .shot{margin-top:12px;border:1px solid var(--line);border-radius:8px;overflow:hidden;
+        background:#000;min-height:60px}
+  .shot img{width:100%;display:block}
+  .shot .ph{padding:26px;text-align:center;color:var(--dim2);font-size:12px}
+  .kpi{display:flex;flex-direction:column;gap:2px}
+  .kpi b{font-size:22px;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+  .kpi span{font-size:11px;color:var(--dim);letter-spacing:.4px}
+  .kpi em{font-style:normal;font-size:11px;color:var(--dim2);margin-top:2px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;color:var(--dim2);font-weight:500;font-size:11px;
+     letter-spacing:.5px;padding:0 8px 7px 0;border-bottom:1px solid var(--line)}
+  td{padding:6px 8px 6px 0;border-bottom:1px solid #1a2028;color:var(--dim)}
+  td:last-child,th:last-child{text-align:right;padding-right:0}
+  tr:last-child td{border-bottom:none}
+  td.num{font-variant-numeric:tabular-nums;color:var(--txt)}
+  .ok{color:var(--green)} .warn{color:var(--yellow)} .muted{color:var(--dim2)}
+  pre{margin:0;font:11.5px/1.65 ui-monospace,Consolas,"Cascadia Mono",monospace;
+      color:var(--dim);white-space:pre-wrap;word-break:break-all;
+      max-height:230px;overflow-y:auto;background:#0a0e14;border:1px solid #1a2028;
+      border-radius:7px;padding:10px 12px}
+  pre::-webkit-scrollbar{width:8px}
+  pre::-webkit-scrollbar-thumb{background:#2a323d;border-radius:4px}
+  .alert{padding:11px 14px;border-radius:8px;margin-bottom:14px;font-size:13px;
+         display:flex;gap:10px;align-items:center}
+  .alert.red{background:#2a1413;border:1px solid #8b2b26;color:#ffa198}
+  .alert.yellow{background:#2b2110;border:1px solid #9e6a03;color:#e3b341}
+  .alert b{color:#fff}
+  .foot{margin-top:22px;color:var(--dim2);font-size:11.5px;line-height:1.8;text-align:center}
+  .ctrl{padding:5px 14px;border-radius:7px;font-size:12px;cursor:pointer;
+        background:#1f2733;color:var(--txt);border:1px solid var(--line);
+        font-family:inherit;transition:.15s}
+  .ctrl:hover{background:#28323f;border-color:#3a4553}
+  .ctrl.on{background:#2b2110;border-color:#9e6a03;color:#e3b341}
+  .ctrl:disabled{opacity:.5;cursor:default}
+  /* ---- 远程登录 ---- */
+  .loginbox{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}
+  .fld{display:flex;flex-direction:column;gap:5px}
+  .fld label{font-size:11px;color:var(--dim2);letter-spacing:.4px}
+  .fld input{background:#0a0e14;border:1px solid var(--line);border-radius:7px;
+             color:var(--txt);padding:8px 11px;font:13px/1.4 inherit;width:170px;outline:none}
+  .fld input:focus{border-color:#2f81f7}
+  .fld input.code{width:96px;text-transform:uppercase;letter-spacing:2px;font-family:ui-monospace,monospace}
+  .cap{height:38px;border-radius:7px;border:1px solid var(--line);cursor:pointer;
+       background:#fff;display:block;image-rendering:crisp-edges}
+  .loginmsg{font-size:12px;margin-top:10px;min-height:17px}
+  .loginmsg.err{color:#ffa198}
+  .loginmsg.ok{color:var(--green)}
+  .loginmsg.dim{color:var(--dim)}
+  .hint{font-size:11.5px;color:var(--dim2);margin-top:8px;line-height:1.6}
+</style>
+
+<div class="wrap">
+  <top>
+    <div class="brand">继续教育 · 后台看板<small id="host"></small></div>
+    <div class="spacer"></div>
+    <div class="pills" id="pills"></div>
+    <button id="btnPause" class="ctrl">暂停</button>
+    <div class="stamp" id="stamp">加载中…</div>
+  </top>
+
+  <div id="alerts"></div>
+
+  <div class="grid g2" style="margin-bottom:14px">
+    <div class="card">
+      <h2>总学时进度</h2>
+      <div class="big">
+        <b id="pctBig">--</b><span>%</span>
+        <em id="pctFrac"></em>
+      </div>
+      <div class="bar"><div id="barMain" style="width:0%"></div></div>
+      <div class="sub">
+        <span>已学 <b id="learnedH">-</b> h / <b id="totalH">-</b> h</span>
+        <span>剩余 <b id="remainH">-</b> h</span>
+        <span>课件 <b id="cwFrac">-</b> 完成</span>
+      </div>
+      <div style="margin-top:16px">
+        <div class="sub" style="margin:0 0 3px"><span>公需课 <b id="pubTxt">-</b></span></div>
+        <div class="bar thin"><div id="barPub" style="width:0%"></div></div>
+        <div class="sub" style="margin:11px 0 3px"><span>专业课 <b id="proTxt">-</b></span></div>
+        <div class="bar thin"><div id="barPro" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>正在播放</h2>
+      <div class="cw" id="cwName">-</div>
+      <div class="cwmeta" id="cwMeta">&nbsp;</div>
+      <div class="pos"><span id="posNow">-</span><span id="posDur">-</span></div>
+      <div class="bar" style="margin:0"><div id="barPlay" style="width:0%"></div></div>
+      <div class="sub" style="margin-top:9px">
+        <span id="playState">-</span>
+        <span>截图 <b id="shotAge">-</b></span>
+      </div>
+      <div class="shot" id="shotBox"><div class="ph">等待截图…</div></div>
+    </div>
+  </div>
+
+  <div class="grid g3" style="margin-bottom:14px">
+    <div class="card kpi">
+      <b id="kSpeed">-</b><span>当前速率（学时/小时）</span>
+      <em id="kSpeedNote">最近 1 小时窗口</em>
+    </div>
+    <div class="card kpi">
+      <b id="kEta">-</b><span>预计完成时间</span>
+      <em id="kEtaNote">按当前速率推算</em>
+    </div>
+    <div class="card kpi">
+      <b id="kAnom">-</b><span>累计异常</span>
+      <em id="kAnomNote">媒体 / 看门狗 / 签到 / 掉登录</em>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-bottom:14px">
+    <div class="card">
+      <h2>最近完成</h2>
+      <table><thead><tr><th>时间</th><th>课件</th><th>时长</th></tr></thead>
+      <tbody id="tbRecent"><tr><td colspan="3" class="muted">还没有记录</td></tr></tbody></table>
+    </div>
+    <div class="card">
+      <h2>整门学满的课程</h2>
+      <table><thead><tr><th>课程</th><th>状态</th></tr></thead>
+      <tbody id="tbCourses"><tr><td colspan="2" class="muted">还没有</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-bottom:14px">
+    <div class="card">
+      <h2>残量待补</h2>
+      <table><thead><tr><th>课程 / 课件</th><th>已记</th><th>总长</th></tr></thead>
+      <tbody id="tbResidual"><tr><td colspan="3" class="muted">没有残量</td></tr></tbody></table>
+    </div>
+    <div class="card">
+      <h2>异常计数</h2>
+      <table><thead><tr><th>项目</th><th>次数</th></tr></thead>
+      <tbody id="tbAnom"></tbody></table>
+    </div>
+  </div>
+
+  <div class="card" id="loginCard" style="margin-bottom:14px">
+    <h2>远程登录 <span id="loginState" style="color:var(--dim2);text-transform:none;letter-spacing:0"></span></h2>
+    <div class="loginbox">
+      <div class="fld">
+        <label>登录账号</label>
+        <input id="lgUser" placeholder="登录账号" autocomplete="username">
+      </div>
+      <div class="fld">
+        <label>登录密码</label>
+        <input id="lgPass" type="password" placeholder="密码" autocomplete="current-password">
+      </div>
+      <div class="fld">
+        <label>验证码</label>
+        <input id="lgCode" class="code" placeholder="0000" maxlength="6" autocomplete="off">
+      </div>
+      <div class="fld">
+        <label>图形码（点图刷新）</label>
+        <img id="lgCap" class="cap" alt="验证码" title="点一下换一张">
+      </div>
+      <button id="lgGo" class="ctrl" style="height:38px;padding:0 18px">登录</button>
+    </div>
+    <div id="lgMsg" class="loginmsg dim"></div>
+    <div class="hint">
+      保持登录固定选「1月」，30 天内不用再登。登录成功会自动重开播放，不用管后台进程。
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <h2>runner 日志（最后 14 行）</h2>
+    <pre id="logRun">-</pre>
+  </div>
+  <div class="card">
+    <h2>守护日志（最后 8 行）</h2>
+    <pre id="logDaemon">-</pre>
+  </div>
+
+  <div class="foot">
+    这个页面只读 <code>data/status.json</code> 和 <code>data/now.png</code>，不碰后台播放。<br>
+    页面 5 秒刷新一次，数据由 <code>status.js</code> 每 10 秒重算。
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmtHMS = (sec) => {
+  if (sec == null || isNaN(sec)) return '-';
+  sec = Math.max(0, Math.round(sec));
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+  const p = (n) => String(n).padStart(2, '0');
+  return h ? `${h}:${p(m)}:${p(s)}` : `${m}:${p(s)}`;
+};
+const parsePos = (t) => {
+  if (!t || typeof t !== 'string') return [null, null];
+  const m = t.match(/(\d+):(\d+)(?::(\d+))?\s*\/\s*(\d+):(\d+)(?::(\d+))?/);
+  if (!m) return [null, null];
+  const a = m[3] ? (+m[1]) * 3600 + (+m[2]) * 60 + (+m[3]) : (+m[1]) * 60 + (+m[2]);
+  const b = m[6] ? (+m[4]) * 3600 + (+m[5]) * 60 + (+m[6]) : (+m[4]) * 60 + (+m[5]);
+  return [a, b];
+};
+
+let shotFails = 0;
+let pausedNow = false;
+
+function renderPauseBtn(paused) {
+  pausedNow = paused;
+  const b = $('btnPause');
+  b.textContent = paused ? '继续' : '暂停';
+  b.className = 'ctrl' + (paused ? ' on' : '');
+}
+
+$('btnPause').onclick = async () => {
+  const go = pausedNow ? 'resume' : 'pause';
+  $('btnPause').disabled = true;
+  try {
+    const r = await fetch('api/' + go, { method: 'POST', cache: 'no-store' });
+    const j = await r.json();
+    renderPauseBtn(!!j.paused);
+    tick();
+  } catch (e) {
+    $('stamp').textContent = '操作失败：' + e.message;
+  }
+  $('btnPause').disabled = false;
+};
+
+function renderPills(p) {
+  const items = [
+    ['守护', p.daemon], ['runner', p.runner],
+    ['Chrome', { alive: p.chrome && p.chrome.alive }],
+    ['截图', p.watch], ['看板服务', p.mirror],
+  ];
+  $('pills').innerHTML = items.map(([label, o]) => {
+    const alive = !!(o && o.alive);
+    const pid = o && o.pid ? `<i>${o.pid}</i>` : '';
+    return `<div class="pill"><span class="dot ${alive ? 'on' : 'off'}"></span><b>${label}</b>${pid}</div>`;
+  }).join('');
+}
+
+function renderAlerts(d) {
+  const a = [];
+  if (d.flags && d.flags.paused) {
+    a.push(`<div class="alert yellow">⏸ <b>已暂停</b> —— 后台原地停着，进度不再推进。点右上角「继续」恢复。</div>`);
+  }
+  if (d.flags && d.flags.needManual) {
+    a.push(`<div class="alert red">⚠️ <div><b>需要你手动点一下签到</b> —— 出现图形点选验证，后台已暂停等待。
+      打开 <a href="checkin.png" target="_blank">截取的验证图</a> 看看，或按 README 切到有头模式自己处理。</div></div>`);
+  }
+  if (d.flags && d.flags.allDone) {
+    a.push(`<div class="alert yellow">🎉 <b>全部课件已学完</b> —— 后台已停止空转。</div>`);
+  }
+  if (d.stallSec != null && d.stallSec > 660 && !(d.flags && d.flags.paused)) {
+    a.push(`<div class="alert red">⏱ <b>日志已 ${Math.round(d.stallSec / 60)} 分钟没更新</b> —— 可能卡住了。
+      看门狗在满 11 分钟且连续两轮确认后会自动重启（最坏 22 分钟恢复）。</div>`);
+  }
+  $('alerts').innerHTML = a.join('');
+}
+
+function render(d) {
+  document.title = d.progress ? `${d.progress.pct}% · 继续教育后台` : '继续教育后台';
+  $('stamp').textContent = d.at || '-';
+  renderPills(d.procs || {});
+  maybeAutoCaptcha(d);
+  renderPauseBtn(!!(d.flags && d.flags.paused));
+  renderAlerts(d);
+
+  const p = d.progress;
+  if (p) {
+    $('pctBig').textContent = p.pct.toFixed(1);
+    $('barMain').style.width = Math.min(100, p.pct) + '%';
+    $('pctFrac').textContent = `${p.doneCw} / ${p.totalCw} 节`;
+    $('learnedH').textContent = p.learnedH.toFixed(2);
+    $('totalH').textContent = p.totalH.toFixed(1);
+    $('remainH').textContent = p.remainH.toFixed(1);
+    $('cwFrac').textContent = `${p.doneCw}/${p.totalCw}`;
+    const pubPct = p.pub.total ? p.pub.done / p.pub.total * 100 : 0;
+    const proPct = p.pro.total ? p.pro.done / p.pro.total * 100 : 0;
+    $('pubTxt').innerHTML = `${p.pub.done}/${p.pub.total} 节（${pubPct.toFixed(0)}%）· 已通过 ${p.passed.pub} 门`;
+    $('proTxt').innerHTML = `${p.pro.done}/${p.pro.total} 节（${proPct.toFixed(0)}%）· 已通过 ${p.passed.pro} 门`;
+    $('barPub').style.width = pubPct + '%';
+    $('barPro').style.width = proPct + '%';
+  }
+
+  const c = d.current;
+  const alive = d.procs && d.procs.chrome && d.procs.chrome.alive;
+  if (c && c.page && c.page !== 'blank') {
+    $('cwName').textContent = c.page.replace(/^\d+:\d+:\d+\s*/, '');
+    const [now, dur] = parsePos(c.pos);
+    $('posNow').textContent = now != null ? fmtHMS(now) : '-';
+    $('posDur').textContent = dur != null ? fmtHMS(dur) : '-';
+    $('barPlay').style.width = (now != null && dur) ? Math.min(100, now / dur * 100) + '%' : '0%';
+    $('cwMeta').textContent = c.at ? `快照时间 ${c.at}` : '\u00a0';
+    const st = c.playing;
+    $('playState').innerHTML = st === true ? '<span class="badge play">播放中</span>'
+      : st === false ? '<span class="badge pause">暂停</span>'
+      : '<span class="badge dead">无视频</span>';
+  } else {
+    $('cwName').textContent = alive ? '页面不是学习页' : 'Chrome 没在跑';
+    $('cwMeta').textContent = '\u00a0';
+    $('posNow').textContent = '-'; $('posDur').textContent = '-';
+    $('barPlay').style.width = '0%';
+    $('playState').innerHTML = '<span class="badge dead">无视频</span>';
+  }
+  $('shotAge').textContent = d.shotAgeSec != null ? d.shotAgeSec + ' 秒前' : '-';
+
+  const r = d.rate;
+  if (r && r.speed) {
+    $('kSpeed').textContent = r.speed.toFixed(2);
+    $('kSpeedNote').textContent = r.src === 'log'
+      ? `按 ${r.used} 次完成的间隔反推（已剔除 ${r.dropped} 个异常间隔）`
+      : `最近 ${r.spanH}h 涨了 ${r.gainH}h`;
+  } else {
+    $('kSpeed').textContent = '—';
+    $('kSpeedNote').textContent = '样本还不够，再等一会';
+  }
+  $('kEta').textContent = d.etaAt || '—';
+  $('kEtaNote').textContent = d.etaAt ? `剩余 ${p ? p.remainH.toFixed(1) : '?'}h` : '攒够速率样本后显示';
+
+  const an = d.anomalies || {};
+  const anomSum = (an.mediaErr || 0) + (an.watchdog || 0) + (an.checkin || 0) + (an.relogin || 0);
+  $('kAnom').textContent = anomSum;
+  $('kAnomNote').textContent = `媒体 ${an.mediaErr || 0} · 看门狗 ${an.watchdog || 0} · 签到 ${an.checkin || 0} · 掉登录 ${an.relogin || 0}`;
+
+  const rc = d.recent || [];
+  $('tbRecent').innerHTML = rc.length
+    ? rc.map((x) => `<tr><td class="muted">${esc((x.at || '').replace(/^\d{4}\//, ''))}</td>
+        <td class="num">${x.wid}</td><td class="num ok">${fmtHMS(x.l)}</td></tr>`).join('')
+    : '<tr><td colspan="3" class="muted">还没有记录</td></tr>';
+
+  const fc = (p && p.fullCourses) || [];
+  $('tbCourses').innerHTML = fc.length
+    ? fc.map((x) => `<tr><td>${esc(x.name)}</td><td class="ok">已学满</td></tr>`).join('')
+    : '<tr><td colspan="2" class="muted">还没有</td></tr>';
+
+  const res = (p && p.residual) || [];
+  $('tbResidual').innerHTML = res.length
+    ? res.map((x) => `<tr><td>课程${x.cid} / 课件${x.wid}</td>
+        <td class="num warn">${fmtHMS(x.l)}</td><td class="num">${fmtHMS(x.t)}</td></tr>`).join('')
+    : '<tr><td colspan="3" class="muted">没有残量</td></tr>';
+
+  const rows = [
+    ['媒体解码错误（自动重载）', an.mediaErr || 0, true],
+    ['看门狗触发重启', an.watchdog || 0, true],
+    ['Chrome 六小时滚动重启', an.chromeRestart || 0, false],
+    ['图形签到', an.checkin || 0, true],
+    ['登录失效', an.relogin || 0, true],
+    ['列表里找不到（历史）', an.notfound || 0, false],
+  ];
+  $('tbAnom').innerHTML = rows.map(([k, v, hot]) =>
+    `<tr><td>${k}</td><td class="num ${hot && v > 0 ? 'warn' : ''}">${v}</td></tr>`).join('');
+
+  $('logRun').textContent = ((d.logs && d.logs.run) || []).join('\n') || '-';
+  $('logDaemon').textContent = ((d.logs && d.logs.daemon) || []).join('\n') || '-';
+}
+
+function tickShot() {
+  const box = $('shotBox');
+  const img = new Image();
+  img.onload = () => {
+    shotFails = 0;
+    let el = box.querySelector('img');
+    if (!el) { box.innerHTML = ''; el = document.createElement('img'); box.appendChild(el); }
+    el.src = img.src;
+  };
+  img.onerror = () => {
+    shotFails++;
+    if (shotFails >= 2 && !box.querySelector('img')) {
+      box.innerHTML = '<div class="ph">还没有截图，检查 watch.js 是否在跑</div>';
+    }
+  };
+  img.src = 'now.png?t=' + Date.now();
+}
+
+async function tick() {
+  try {
+    const res = await fetch('status.json?t=' + Date.now(), { cache: 'no-store' });
+    render(await res.json());
+  } catch (e) {
+    $('stamp').textContent = '读不到 status.json（status.js 在跑吗？）';
+  }
+  tickShot();
+}
+
+$('host').textContent = location.host;
+
+// ---------- 远程登录 ----------
+// 验证码图从后端拿（后端去无头 Chrome 的登录页上抠出来的），
+// 填完把账号密码验证码 POST 回去，后端替你填表提交。
+let capBusy = false;
+
+function lgMsg(t, cls) {
+  const el = $('lgMsg');
+  el.textContent = t || '';
+  el.className = 'loginmsg ' + (cls || 'dim');
+}
+
+function renderLoginState(st) {
+  const el = $('loginState');
+  if (!st) { el.textContent = ''; return; }
+  if (st.loggedIn) {
+    const d = st.expiresInDays;
+    el.innerHTML = `· <span class="ok">已登录</span>` + (d != null ? `，剩 ${d.toFixed(1)} 天` : '');
+  } else {
+    el.innerHTML = `· <span class="warn">未登录</span>` + (st.needLogin ? '，后台在等人登录' : '');
+  }
+}
+
+async function loadCaptcha(showMsg) {
+  if (capBusy) return;
+  capBusy = true;
+  if (showMsg) lgMsg('正在从后台取验证码…', 'dim');
+  try {
+    const r = await fetch('api/login/captcha', { cache: 'no-store' });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.msg || '取验证码失败');
+    renderLoginState(j.state);
+    if (j.already) {
+      $('lgCap').removeAttribute('src');
+      lgMsg('当前已经是登录状态，不用再登。', 'ok');
+      return;
+    }
+    if (j.captcha) $('lgCap').src = j.captcha;
+    if (j.prefillUser && !$('lgUser').value) $('lgUser').value = j.prefillUser;
+    if (showMsg) lgMsg(j.keep ? `验证码已加载，保持登录=${j.keep}` : '验证码已加载', 'dim');
+    $('lgCode').focus();
+  } catch (e) {
+    lgMsg('取验证码失败：' + e.message, 'err');
+  } finally {
+    capBusy = false;
+  }
+}
+
+$('lgCap').onclick = () => loadCaptcha(true);
+
+$('lgGo').onclick = async () => {
+  const user = $('lgUser').value.trim();
+  const pass = $('lgPass').value;
+  const code = $('lgCode').value.trim();
+  if (!user || !pass || !code) { lgMsg('账号、密码、验证码都要填。', 'err'); return; }
+
+  $('lgGo').disabled = true;
+  lgMsg('正在登录…', 'dim');
+  try {
+    const r = await fetch('api/login/submit', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      cache: 'no-store',
+      body: JSON.stringify({ user, pass, code }),
+    });
+    const j = await r.json();
+    if (j.ok) {
+      $('lgPass').value = '';
+      $('lgCode').value = '';
+      renderLoginState(j.state);
+      const d = j.expiresInDays;
+      lgMsg(`登录成功，已保存登录态${d != null ? `（${d.toFixed(1)} 天）` : ''}，后台会自动接着播。`, 'ok');
+      setTimeout(tick, 1500);
+    } else {
+      $('lgCode').value = '';
+      renderLoginState(j.state);
+      lgMsg(j.msg || '登录失败，换一张验证码再试。', 'err');
+      if (j.captcha) $('lgCap').src = j.captcha;
+      else loadCaptcha(false);
+    }
+  } catch (e) {
+    lgMsg('提交失败：' + e.message, 'err');
+  } finally {
+    $('lgGo').disabled = false;
+  }
+};
+
+// 回车直接提交
+['lgUser', 'lgPass', 'lgCode'].forEach((id) => {
+  $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') $('lgGo').click(); });
+});
+
+// 未登录时自动把验证码拉出来，省一次点击
+let capLoadedOnce = false;
+function maybeAutoCaptcha(d) {
+  if (capLoadedOnce) return;
+  if (d.flags && (d.flags.needLogin || d.flags.needManual)) {
+    capLoadedOnce = true;
+    setTimeout(() => loadCaptcha(true), 400);
+  }
+}
+
+tick();
+setInterval(tick, 5000);
+</script>
+</html>
